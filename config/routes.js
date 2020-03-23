@@ -11,6 +11,7 @@ module.exports = server => {
     server.post('/api/user/register', userRegister)
     server.post('/api/user/login', userLogin);
     server.get('/api/users', getUsers);
+    server.get('/api/teams', getTeams);
     server.get('/api/user/:id', getUser);
     server.post('/api/user/:id/addpoke', addPoke);
     server.get('/api/user/:id/team', getTeam);
@@ -87,6 +88,17 @@ function getUsers(req, res) {
         })
 }
 
+function getTeams(req, res) {
+    Team.getTeams()
+        .then(teamList => {
+            res.status(201).json(teamList)
+            console.log(teamList)
+        })
+        .catch(err => {
+            res.status(500).json(err)
+        })
+}
+
 function getUser(req, res) {
     const {id} = req.params
 
@@ -100,10 +112,10 @@ function getUser(req, res) {
 }
 
 function addPoke(req, res) {
-    const poke = req.body
+    const pokeData = req.body
     const {id} = req.params
 
-    User.addPoke(poke, id)
+    User.addPoke(pokeData, id)
         .then(poke => {
             res.status(201).json(poke)
         })

@@ -32,7 +32,7 @@ exports.up = function(knex) {
           .string('poke_name', 128)
           .notNullable()
       team
-          .string('poke_type', 128)
+          .json('poke_type', 128)
           .notNullable()
     })
   };

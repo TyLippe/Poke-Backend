@@ -34,7 +34,7 @@ function findUserById(id) {
 
 function addPoke(poke, user_id) {
     return db('team')
-        .insert({...poke, user_id})
+        .insert({...poke, poke_type: JSON.stringify(poke.poke_type),user_id})
 }
 
 function getTeam(id) {
