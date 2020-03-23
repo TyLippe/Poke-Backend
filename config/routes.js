@@ -92,7 +92,6 @@ function getTeams(req, res) {
     Team.getTeams()
         .then(teamList => {
             res.status(201).json(teamList)
-            console.log(teamList)
         })
         .catch(err => {
             res.status(500).json(err)
