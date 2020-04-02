@@ -6,7 +6,9 @@ module.exports = {
 }
 
 function getTeams() {
-    return db('team')
+    return db('team as t')
+        .innerJoin('users as u', 'u.id', 't.user_id')
+        .select('u.username', 't.poke_num', 't.poke_name')
 }
 
 function deletePoke(id) {

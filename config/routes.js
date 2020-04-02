@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const { authenticate } = require('../mw/auth')
 const secrets = require('./secrets');
 
 const User = require('./user/userModel')
@@ -10,12 +10,12 @@ module.exports = server => {
     server.get('/', testing)
     server.post('/api/user/register', userRegister)
     server.post('/api/user/login', userLogin);
-    server.get('/api/users', getUsers);
-    server.get('/api/teams', getTeams);
-    server.get('/api/user/:id', getUser);
-    server.post('/api/user/:id/addpoke', addPoke);
-    server.get('/api/user/:id/team', getTeam);
-    server.delete('/api/team/:id', deletePoke);
+    server.get('/api/users', authenticate, getUsers);
+    server.get('/api/teams', authenticate, getTeams);
+    server.get('/api/user/:id', authenticate, getUser);
+    server.post('/api/user/:id/addpoke', authenticate, addPoke);
+    server.get('/api/user/:id/team', authenticate, getTeam);
+    server.delete('/api/team/:id', authenticate, deletePoke);
 }
 
 function testing(req, res) {
@@ -43,7 +43,6 @@ function userRegister(req, res) {
 
     User.addUser(user)
         .then(saved => {
-            console.log(user.password)
             res.status(201).json(saved)
         })
         .catch(err => {
@@ -60,7 +59,9 @@ function userLogin(req, res) {
         .then(user => {
             if (user && bcrypt.compareSync(password, user.password)) {
                 const token = generateToken(user)
+                const id = user.id
                     res.status(200).json({
+                        id,
                         username,
                         token
                     })
@@ -94,6 +95,7 @@ function getTeams(req, res) {
             res.status(201).json(teamList)
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json(err)
         })
 }
@@ -114,15 +116,26 @@ function addPoke(req, res) {
     const pokeData = req.body
     const {id} = req.params
 
-    User.addPoke(pokeData, id)
-        .then(poke => {
-            res.status(201).json(poke)
+    User.getTeam(id)
+        .then(team => {
+            if(team.length === 6) {
+                res.status(400).json({ message: 'Your team is already full'})
+            } else {
+                User.addPoke(pokeData, id)
+                .then(poke => {
+                    res.status(201).json(poke)
+                })
+                .catch(err => {
+                    res.status(500).json(err)
+                    console.log(err)
+                })
+            }
         })
         .catch(err => {
             res.status(500).json(err)
-            console.log(err)
         })
 }
+
 
 function getTeam(req, res) {
     const {id} = req.params
