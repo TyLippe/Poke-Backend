@@ -41,5 +41,5 @@ function getTeam(id) {
     return db('users as u')
         .innerJoin('team as t', 'u.id', 't.user_id')
         .where({user_id: id})
-        .select('u.username', 't.id', 't.sprite', 't.poke_num', 't.poke_name')
+        .select('u.username', 't.id', 't.poke_num', 't.poke_name', 't.sprite')
 }
